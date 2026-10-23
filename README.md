@@ -1,58 +1,45 @@
-# Everlight Christian Lyrics — starter website
+# Everlight Christian Lyrics — Admin + SEO version
 
-A static, responsive first version of Everlight Christian Lyrics. It is designed to run without a paid server, database, API key, or build step.
+This package upgrades the existing static starter into a Cloudflare Pages + Pages Functions + D1 app. It provides a password-protected admin dashboard, draft/publish workflow, a D1 song database, individual SEO-friendly `/lyrics/<slug>/` pages, and a dynamic `/sitemap.xml`.
 
-## Features in this starter
-- Responsive homepage with Telugu-first visual styling
-- Local catalogue search using `songs.json`
-- Search by title, artist, description, and alternate search terms
-- Language filter, currently seeded for Telugu
-- External search links for Google, YouTube, and Spotify
-- No audio or copyrighted lyrics are copied or hosted
-- No API keys or paid services required for this version
+## Important before deploying
+- This is a Cloudflare Pages app, not a WordPress theme. Keep your current GitHub repo connected to Cloudflare Pages and replace its files with this package.
+- You must create a Cloudflare D1 database and bind it as `DB`.
+- Set `ADMIN_PASSWORD` and `SESSION_SECRET` as Cloudflare Pages **environment variables/secrets** for Production and Preview if you use preview deployments. Do not put passwords in GitHub files. Use a long unique password and a random secret of at least 32 characters.
+- Update `REPLACE_WITH_YOUR_EMAIL` in `functions/lyrics/[slug].js` and `index.html` to an email address you control.
+- The included robots.txt and sitemap use the current `pages.dev` domain. Update them if you later connect a custom domain.
+- This implementation is a starter and should be tested in a Cloudflare Preview deployment before using it for important content. Keep a backup of your current repo.
 
-## Files
-- `index.html` — homepage structure
-- `styles.css` — responsive design
-- `app.js` — catalogue and web-search logic
-- `songs.json` — editable starter catalogue
+## Setup
+1. Download and extract the ZIP.
+2. In your existing GitHub repository, replace the old files with all files/folders in this ZIP. Ensure `functions/`, `migrations/`, `admin/`, `wrangler.toml`, and `_headers` are uploaded at the repository root. Commit the changes.
+3. In Cloudflare dashboard, open **Workers & Pages → D1 SQL Database** and create a database named `everlight-christian-lyrics-db`.
+4. Copy the database ID from Cloudflare and replace `REPLACE_WITH_YOUR_D1_DATABASE_ID` in `wrangler.toml`. Commit the updated file.
+5. In the Cloudflare Pages project settings, add a D1 binding named `DB` and select the new database. Bind it for both Production and Preview if desired.
+6. Apply `migrations/0001_create_songs.sql` to the D1 database using the Cloudflare D1 console (paste/run the SQL) or Wrangler CLI. For Wrangler CLI, install Wrangler and run: `npx wrangler d1 execute everlight-christian-lyrics-db --remote --file=migrations/0001_create_songs.sql` after authenticating and verifying the database name.
+7. In **Pages → your project → Settings → Variables and Secrets**, add:
+   - `ADMIN_PASSWORD`: a strong unique password you create.
+   - `SESSION_SECRET`: a long random secret (at least 32 characters). Generate one with a password manager.
+   Set them for Production and Preview as needed. Never share them or commit them.
+8. Deploy/redeploy. Visit `/admin/` on your site, log in, and add your first song.
+9. Check `/api/songs`, `/lyrics/your-song-slug/`, and `/sitemap.xml` on the deployed site.
+10. In Google Search Console, verify your site, submit `https://YOUR-DOMAIN/sitemap.xml`, and request indexing for important published song pages. Google decides whether/when pages appear; indexing and ranking are not guaranteed.
 
-## Test locally
-1. Extract the ZIP.
-2. Open `index.html` in a browser. Most features work directly from the file.
-3. For a closer hosted preview, run a static local server from this folder:
-   - Python: `python -m http.server 8000`
-   - Visit `http://localhost:8000`
+## How to publish a song
+1. Open `https://YOUR-DOMAIN/admin/`.
+2. Log in using `ADMIN_PASSWORD`.
+3. Click **Add new song** and fill the title, artist, language, slug, description, authorized lyrics, optional transliteration, and official links.
+4. Confirm you have the right to publish the lyrics.
+5. Choose **Publish publicly** and save. The public URL is `/lyrics/<slug>/`.
 
-## Free deployment with Cloudflare Pages (no paid Hostinger plan needed)
-1. Create a GitHub account if you do not have one.
-2. Create a new repository, for example `everlight-christian-lyrics`.
-3. Upload the contents of this folder to the repository root (not the ZIP itself).
-4. Sign in to Cloudflare and open Workers & Pages.
-5. Create a Pages project and connect the GitHub repository.
-6. For a plain HTML/CSS/JS site, select no framework / static site. Leave the build command blank and set the output directory to `/` or the repository root as the Cloudflare setup screen requests.
-7. Deploy. Cloudflare will provide a free `*.pages.dev` address.
+Drafts are excluded from public pages and sitemap. Unpublished lyrics are not served publicly. Keep database backups. A single-password admin is suitable for a small owner-operated catalogue; for multiple editors, add a proper identity provider and role management.
 
-Provider dashboard labels and free-plan limits can change; check the current Cloudflare Pages documentation before deploying.
+## Security and content notes
+- Admin routes are protected by a signed, HttpOnly, Secure, SameSite cookie with a 12-hour expiry. Use HTTPS (Cloudflare Pages supplies it).
+- Do not store secrets in the repository. Rotate the admin password and session secret if exposed.
+- Publish only lyrics you own, have permission to publish, or otherwise have a valid legal basis to use. The checkbox is a reminder, not legal advice.
+- This version does not automatically make Google display lyrics in its search snippet. It creates crawlable pages and a sitemap; Google controls crawling, indexing, snippets, and rankings.
+- Search metadata is kept intentionally simple. Add a custom domain and Google Search Console later for stronger brand discoverability.
 
-## Add or edit songs
-Edit `songs.json`. Each item can have:
-- `title` (required)
-- `language` (e.g. `Telugu`, `English`)
-- `artist`
-- `description`
-- `searchTerms` (alternate spellings/transliterations)
-- `youtubeUrl` (only an official or authorized URL)
-- `spotifyUrl` (valid track/artist/album URL)
-- `authorizedLyricsUrl` (a source you are allowed to link to)
-
-Do not put full lyrics in this file unless you have permission or a valid legal basis to publish them. The current starter entries are generic search topics, not verified individual song records. Verify titles, creators, and official links before treating them as catalogue listings.
-
-## Important current limitation
-The web-search buttons open a search results page on Google, YouTube, or Spotify. This starter does not embed a third-party search engine or fetch live results inside the page. An API-backed unified results page can be added later after checking provider API terms, quotas, and whether a genuinely free tier is available.
-
-## Before public launch
-- Replace `hello@example.com` in `index.html` with a real contact address you control.
-- Add a privacy notice and terms/contact page if collecting data or user submissions.
-- Add only verified metadata, authorized links, and lyrics you can legally publish.
-- Test mobile layout and links after deployment.
+## Local notes
+The Pages Functions require a Cloudflare-compatible runtime and a D1 binding; opening the HTML file directly will not make the admin/database work. Test via Cloudflare Pages Preview or Wrangler Pages development with a local D1 database.

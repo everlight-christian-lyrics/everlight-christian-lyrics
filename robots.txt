@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Sitemap: https://everlight-christian-lyrics.pages.dev/sitemap.xml
