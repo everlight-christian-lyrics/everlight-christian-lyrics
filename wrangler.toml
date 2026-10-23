@@ -4,5 +4,5 @@ pages_build_output_dir = "."
 [[d1_databases]]
 binding = "DB"
 database_name = "everlight-christian-lyrics-db"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "Rbb97add2-82a3-4eb7-82d8-41c4ad394854"
 migrations_dir = "migrations"
