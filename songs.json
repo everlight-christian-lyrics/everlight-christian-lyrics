@@ -1,0 +1,46 @@
+[
+  {
+    "title": "ఆరాధన",
+    "language": "Telugu",
+    "artist": "",
+    "description": "Starter search topic only. Confirm the exact song, creator, and authorized listening source before publishing a full entry.",
+    "searchTerms": [
+      "aaradhana",
+      "aradhana",
+      "worship",
+      "స్తుతి"
+    ],
+    "youtubeUrl": "",
+    "spotifyUrl": "",
+    "authorizedLyricsUrl": ""
+  },
+  {
+    "title": "యేసయ్య",
+    "language": "Telugu",
+    "artist": "",
+    "description": "Starter search topic only. Many songs may use this word; verify the specific title and creator before adding details.",
+    "searchTerms": [
+      "yesayya",
+      "yesaiah",
+      "యేసు",
+      "jesus"
+    ],
+    "youtubeUrl": "",
+    "spotifyUrl": "",
+    "authorizedLyricsUrl": ""
+  },
+  {
+    "title": "కృప",
+    "language": "Telugu",
+    "artist": "",
+    "description": "Starter search topic only. Add verified song metadata and an authorized source when identified.",
+    "searchTerms": [
+      "krupa",
+      "krupa chaalunu",
+      "grace"
+    ],
+    "youtubeUrl": "",
+    "spotifyUrl": "",
+    "authorizedLyricsUrl": ""
+  }
+]

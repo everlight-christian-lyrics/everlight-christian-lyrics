@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123b2c">
+  <meta name="description" content="Discover Telugu Christian songs, lyrics resources, and official listening links with Everlight Christian Lyrics.">
+  <title>Everlight Christian Lyrics — Find Your Worship Song</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Everlight Christian Lyrics home">
+      <span class="brand-mark" aria-hidden="true">✦</span>
+      <span><strong>EVERLIGHT</strong><small>CHRISTIAN LYRICS</small></span>
+    </a>
+    <nav aria-label="Main navigation">
+      <a href="#search">Search songs</a>
+      <a href="#browse">Browse</a>
+      <a href="#about">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="search">
+      <div class="hero-glow"></div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> A growing Christian music directory</div>
+      <h1>Find your next<br><em>worship song.</em></h1>
+      <p class="hero-copy">Search our Telugu song catalogue and discover more across the web — all from one place.</p>
+      <form id="search-form" class="search-box" role="search">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input id="search-input" type="search" placeholder="పాట పేరు, పాటలోని పదాలు, గాయకుడు..." autocomplete="off" aria-label="Search songs, lyrics snippets, or artists">
+        <button type="submit">Search <span aria-hidden="true">↗</span></button>
+      </form>
+      <div class="search-options">
+        <label for="language-filter">Language</label>
+        <select id="language-filter">
+          <option value="all">All languages</option>
+          <option value="Telugu" selected>Telugu</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Tamil">Tamil</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Kannada">Kannada</option>
+        </select>
+        <span class="search-note">Try a title or a few words you remember</span>
+      </div>
+      <div class="quick-searches" aria-label="Popular search suggestions">
+        <span>Try:</span>
+        <button type="button" data-query="ఆరాధన">ఆరాధన</button>
+        <button type="button" data-query="యేసయ్య">యేసయ్య</button>
+        <button type="button" data-query="కృప">కృప</button>
+        <button type="button" data-query="worship">Worship</button>
+      </div>
+    </section>
+
+    <section class="results-section" id="results" aria-live="polite">
+      <div class="section-heading">
+        <div><span class="section-kicker">YOUR SEARCH</span><h2 id="results-title">Start with a song</h2></div>
+        <span id="result-count" class="result-count">Catalogue + web</span>
+      </div>
+      <div id="results-list" class="results-grid">
+        <article class="welcome-card">
+          <div class="welcome-icon">♫</div>
+          <h3>One search. More ways to discover.</h3>
+          <p>Search our starter catalogue, then open matching results on Google, YouTube, and Spotify.</p>
+        </article>
+      </div>
+      <p class="disclaimer">External search links take you to their respective platforms. Availability and search results depend on each service.</p>
+    </section>
+
+    <section class="browse-section" id="browse">
+      <div class="section-heading">
+        <div><span class="section-kicker">EXPLORE</span><h2>Browse by mood</h2></div>
+        <p class="section-subtitle">Start with Telugu. Grow into a worldwide library.</p>
+      </div>
+      <div class="category-grid">
+        <button class="category-card green" data-query="Telugu Christian worship songs"><span class="category-symbol">♬</span><strong>ఆరాధన</strong><small>Worship</small><span class="card-arrow">↗</span></button>
+        <button class="category-card gold" data-query="Telugu Christian praise songs"><span class="category-symbol">✧</span><strong>స్తుతి గీతాలు</strong><small>Praise songs</small><span class="card-arrow">↗</span></button>
+        <button class="category-card blue" data-query="Telugu Christian old songs hymns"><span class="category-symbol">♫</span><strong>పాత పాటలు</strong><small>Old favourites</small><span class="card-arrow">↗</span></button>
+        <button class="category-card rose" data-query="Telugu Christian new songs"><span class="category-symbol">✦</span><strong>కొత్త పాటలు</strong><small>New releases</small><span class="card-arrow">↗</span></button>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="about-mark">✦</div>
+      <div><span class="section-kicker">OUR PURPOSE</span><h2>Made for the Christian music community.</h2>
+        <p>Everlight Christian Lyrics helps listeners discover songs and find official places to listen. We publish full lyrics only when we have permission or a valid legal basis. We aim to credit creators and link to authorized sources.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-brand" href="#">EVERLIGHT <span>CHRISTIAN LYRICS</span></a>
+    <span>Built to help worship travel further. © <span id="year"></span> Everlight Christian Lyrics</span>
+    <a href="mailto:hello@example.com" id="contact-link">Contact / corrections</a>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>
