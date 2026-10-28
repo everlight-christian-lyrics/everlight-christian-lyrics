@@ -43,3 +43,4 @@ Drafts are excluded from public pages and sitemap. Unpublished lyrics are not se
 
 ## Local notes
 The Pages Functions require a Cloudflare-compatible runtime and a D1 binding; opening the HTML file directly will not make the admin/database work. Test via Cloudflare Pages Preview or Wrangler Pages development with a local D1 database.
+Admin configuration update.
