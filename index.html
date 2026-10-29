@@ -1,5 +1,152 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Admin — Everlight Christian Lyrics</title><link rel="stylesheet" href="/styles.css"><style>
-.admin-wrap{max-width:980px;margin:50px auto;padding:24px}.admin-panel{background:#fff;border:1px solid #dfe8e1;border-radius:20px;padding:24px;margin:20px 0;color:#153528}.admin-panel h1,.admin-panel h2{margin-top:0}.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.admin-field{display:flex;flex-direction:column;gap:7px}.admin-field.full{grid-column:1/-1}.admin-field label{font-weight:700;font-size:14px}.admin-field input,.admin-field textarea,.admin-field select{width:100%;padding:12px;border:1px solid #cbd8cf;border-radius:10px;font:inherit;background:#fff;color:#17382b}.admin-field textarea{min-height:140px;resize:vertical}.admin-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.admin-btn{border:0;border-radius:10px;padding:12px 16px;background:#14583d;color:#fff;font-weight:700;cursor:pointer}.admin-btn.secondary{background:#eaf1ec;color:#16412e}.admin-btn.danger{background:#a52d2d}.admin-status{padding:12px;border-radius:10px;background:#f0f5f1;margin:12px 0;white-space:pre-wrap}.song-row{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:14px 0;border-bottom:1px solid #e5ece7}.song-row small{display:block;color:#627268;margin-top:4px}.song-row button{margin:3px}.muted{color:#607368;font-size:14px}@media(max-width:650px){.admin-grid{grid-template-columns:1fr}.admin-field.full{grid-column:auto}.admin-wrap{padding:14px;margin:20px auto}.admin-panel{padding:16px}.song-row{align-items:flex-start;flex-direction:column}}
-</style></head><body><header class="site-header"><a class="brand" href="/"><span class="brand-mark">✦</span><span><strong>EVERLIGHT</strong><small>CHRISTIAN LYRICS</small></span></a><nav><a href="/">View website</a></nav></header><main class="admin-wrap"><div class="admin-panel"><h1>Song admin</h1><p class="muted">Private publishing dashboard. Published songs get their own public URL.</p><div id="status" class="admin-status" role="status">Checking login…</div><section id="login-section" hidden><form id="login-form"><div class="admin-field"><label for="password">Admin password</label><input id="password" type="password" autocomplete="current-password" required></div><div class="admin-actions"><button class="admin-btn">Log in</button></div></form></section><section id="dashboard" hidden><div class="admin-actions"><button class="admin-btn" id="new-song">+ Add new song</button><button class="admin-btn secondary" id="logout">Log out</button></div><p class="muted">Only publish lyrics you wrote, control, have permission to publish, or otherwise have a valid legal basis to use.</p></section></div>
-<section id="editor" class="admin-panel" hidden><h2 id="editor-heading">Add a song</h2><form id="song-form"><input type="hidden" id="song-id"><div class="admin-grid"><div class="admin-field"><label for="title">Song title *</label><input id="title" required maxlength="180"></div><div class="admin-field"><label for="artist">Singer / artist</label><input id="artist" maxlength="180"></div><div class="admin-field"><label for="language">Language</label><select id="language"><option>Telugu</option><option>English</option><option>Hindi</option><option>Tamil</option><option>Malayalam</option><option>Kannada</option><option>Other</option></select></div><div class="admin-field"><label for="slug">Page URL slug *</label><input id="slug" required pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="180"><small class="muted">Example: yesayya-nee-prema</small></div><div class="admin-field full"><label for="description">Short description</label><textarea id="description" rows="2" maxlength="500"></textarea></div><div class="admin-field full"><label for="lyrics">Lyrics (only if authorized)</label><textarea id="lyrics" placeholder="Paste authorized lyrics here. Keep line breaks." rows="10"></textarea></div><div class="admin-field full"><label for="transliteration">Roman transliteration (optional)</label><textarea id="transliteration" rows="5"></textarea></div><div class="admin-field"><label for="youtubeUrl">Official YouTube URL</label><input id="youtubeUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></div><div class="admin-field"><label for="spotifyUrl">Spotify URL</label><input id="spotifyUrl" type="url" placeholder="https://open.spotify.com/..."></div><div class="admin-field full"><label for="searchTerms">Search terms / alternate spellings</label><input id="searchTerms" placeholder="Yesayya, Yesu, యేసయ్య (comma-separated)"></div><div class="admin-field full"><label><input type="checkbox" id="rightsConfirmed" required> I confirm I have the rights, permission, or another valid legal basis to publish any lyrics entered above.</label></div><div class="admin-field"><label for="publish">Publication status</label><select id="publish"><option value="draft">Save as draft</option><option value="published">Publish publicly</option></select></div></div><div class="admin-actions"><button class="admin-btn" type="submit">Save song</button><button class="admin-btn secondary" type="button" id="cancel-edit">Cancel</button></div></form></section>
-<section id="song-list-panel" class="admin-panel" hidden><h2>Your songs</h2><div id="song-list"></div></section></main><script src="/admin/admin.js"></script></body></html>
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Everlight Christian Lyrics | Telugu & English Christian Songs</title>
+  <meta name="description" content="Discover Telugu and English Christian song lyrics, worship songs, praise songs and gospel music. Search songs by title, artist or remembered words.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://everlight-christian-lyrics.pages.dev/">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Everlight Christian Lyrics home">
+      <span class="brand-mark">✦</span>
+      <span>
+        <strong>EVERLIGHT</strong>
+        <small>CHRISTIAN LYRICS</small>
+      </span>
+    </a>
+    <nav>
+      <a href="#browse">Browse songs</a>
+      <a href="/admin/">Admin</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <span class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        A PLACE FOR EVERY WORSHIP SONG
+      </span>
+      <h1>Find your next<br><em>worship song.</em></h1>
+      <p class="hero-copy">
+        Explore Telugu and English Christian lyrics, praise songs,
+        worship songs and the songs that strengthen your faith.
+      </p>
+
+      <form class="search-box" id="search-form">
+        <span class="search-icon">⌕</span>
+        <input id="search-input" type="search"
+          placeholder="Search a song, artist or lyrics..."
+          aria-label="Search songs">
+        <button type="submit">Search songs</button>
+      </form>
+
+      <div class="search-options">
+        <label for="language-filter">Language:</label>
+        <select id="language-filter">
+          <option value="all">All languages</option>
+          <option value="Telugu">Telugu</option>
+          <option value="English">English</option>
+          <option value="Hindi">Hindi</option>
+          <option value="Tamil">Tamil</option>
+          <option value="Malayalam">Malayalam</option>
+          <option value="Kannada">Kannada</option>
+        </select>
+        <span class="search-note">Search by title or artist</span>
+      </div>
+
+      <div class="quick-searches">
+        <span>Popular searches:</span>
+        <button type="button" data-query="యేసయ్య">యేసయ్య</button>
+        <button type="button" data-query="ఆరాధన">ఆరాధన</button>
+        <button type="button" data-query="Jesus">Jesus</button>
+        <button type="button" data-query="Worship">Worship</button>
+      </div>
+    </section>
+
+    <section class="results-section" id="results">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">SONG DIRECTORY</span>
+          <h2 id="results-title">Start with a song</h2>
+        </div>
+        <span class="result-count" id="result-count">Loading songs...</span>
+      </div>
+      <div class="results-grid" id="results-list">
+        <article class="welcome-card">
+          <div class="welcome-icon">♫</div>
+          <h3>Welcome to Everlight</h3>
+          <p>Our song directory is loading. Search for your favourite song.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="browse-section" id="browse">
+      <div class="section-heading">
+        <div>
+          <span class="section-kicker">EXPLORE BY CATEGORY</span>
+          <h2>Browse songs</h2>
+        </div>
+        <p class="section-subtitle">Find songs for every season of faith.</p>
+      </div>
+
+      <div class="category-grid">
+        <button class="category-card green" data-query="Praise" type="button">
+          <span class="category-symbol">♫</span>
+          <strong>Praise Songs</strong>
+          <small>Songs of thanksgiving</small>
+          <span class="card-arrow">↗</span>
+        </button>
+        <button class="category-card gold" data-query="Worship" type="button">
+          <span class="category-symbol">✦</span>
+          <strong>Worship Songs</strong>
+          <small>Enter His presence</small>
+          <span class="card-arrow">↗</span>
+        </button>
+        <button class="category-card blue" data-query="Christmas" type="button">
+          <span class="category-symbol">☆</span>
+          <strong>Christmas Songs</strong>
+          <small>Celebrate His birth</small>
+          <span class="card-arrow">↗</span>
+        </button>
+        <button class="category-card rose" data-query="Easter" type="button">
+          <span class="category-symbol">✝</span>
+          <strong>Easter Songs</strong>
+          <small>Celebrate the resurrection</small>
+          <span class="card-arrow">↗</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="about-mark">✦</div>
+      <div>
+        <span class="section-kicker">OUR PURPOSE</span>
+        <h2>Let every song lead you closer to God.</h2>
+        <p>
+          Everlight Christian Lyrics helps listeners discover Christian
+          songs and find music for worship, prayer and encouragement.
+          Song information and links are provided to help you explore
+          music from different artists and ministries.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-brand">
+      EVERLIGHT
+      <span>CHRISTIAN LYRICS</span>
+    </div>
+    <span>© <span id="year"></span> Everlight Christian Lyrics</span>
+    <a href="/admin/">Song administrator</a>
+  </footer>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
