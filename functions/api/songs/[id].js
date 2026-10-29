@@ -1,4 +1,30 @@
 import {json,requireAuth,validUrl} from '../../_lib/auth.js';
-function validate(b){if(!b||typeof b.title!=='string'||!b.title.trim()||b.title.length>180)return 'Song title is required (max 180 characters).';if(typeof b.slug!=='string'||!(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(b.slug))||b.slug.length>180)return 'Use a URL slug with lowercase letters, numbers and hyphens.';if((b.lyrics||'').trim()&&b.rightsConfirmed!==true)return 'Confirm that you have the rights or valid legal basis to publish these lyrics.';if(!validUrl(b.youtubeUrl)||!validUrl(b.spotifyUrl))return 'Links must be valid HTTPS URLs.';if(!['draft','published'].includes(b.status||'draft'))return 'Invalid status.';return null}
-export async function onRequestPut({request,env,params}){const e=await requireAuth(request,env);if(e)return e;let b;try{b=await request.json()}catch{return json({error:'Invalid JSON.'},400)}const err=validate(b);if(err)return json({error:err},400);const v=[b.title.trim(),b.slug,b.artist||'',b.language||'Telugu',b.description||'',b.lyrics||'',b.transliteration||'',b.youtubeUrl||'',b.spotifyUrl||'',JSON.stringify(Array.isArray(b.searchTerms)?b.searchTerms.filter(x=>typeof x==='string').slice(0,40):[]),b.status||'draft',new Date().toISOString(),params.id];try{const r=await env.DB.prepare('UPDATE songs SET title=?,slug=?,artist=?,language=?,description=?,lyrics=?,transliteration=?,youtube_url=?,spotify_url=?,search_terms=?,status=?,updated_at=? WHERE id=?').bind(...v).run();if(!r.meta.changes)return json({error:'Song not found.'},404)}catch(error){return json({error:String(error).includes('UNIQUE')?'That URL slug is already used. Choose another slug.':'Could not update song.'},500)}return json({song:{id:params.id,title:v[0],slug:v[1],status:v[10]}})}
+function validate(b){
+  if(!b||typeof b.title!=='string'||!b.title.trim()||b.title.length>180)return 'Song title is required (max 180 characters).';
+  if(typeof b.slug!=='string'||!(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(b.slug))||b.slug.length>180)return 'Use a URL slug with lowercase letters, numbers and hyphens.';
+  for(const k of ['artist','description','lyrics','englishTranslation','transliteration'])if(typeof (b[k]??'')!=='string')return `Invalid ${k}.`;
+  if((b.lyrics||'').length>60000||(b.englishTranslation||'').length>60000||(b.transliteration||'').length>60000)return 'Lyrics or translation field is too long.';
+  if(!['Telugu','English','Hindi','Tamil','Malayalam','Kannada','Other'].includes(b.language||'Telugu'))return 'Choose a supported language.';
+  if((b.lyrics||'').trim()&&b.rightsConfirmed!==true)return 'Confirm that you have the rights or valid legal basis to publish these lyrics.';
+  if(!validUrl(b.youtubeUrl)||!validUrl(b.spotifyUrl))return 'Links must be valid HTTPS URLs.';
+  if(!['draft','published'].includes(b.status||'draft'))return 'Invalid status.';
+  return null;
+}export async function onRequestPut({request,env,params}){const e=await requireAuth(request,env);if(e)return e;let b;try{b=await request.json()}catch{return json({error:'Invalid JSON.'},400)}const err=validate(b);if(err)return json({error:err},400);const v=[
+  b.title.trim(),
+  b.slug,
+  b.artist||'',
+  b.language||'Telugu',
+  b.description||'',
+  b.lyrics||'',
+  b.englishTranslation||'',
+  b.transliteration||'',
+  b.youtubeUrl||'',
+  b.spotifyUrl||'',
+  JSON.stringify(Array.isArray(b.searchTerms)?b.searchTerms.filter(x=>typeof x==='string').slice(0,40):[]),
+  b.status||'draft',
+  new Date().toISOString(),
+  params.id
+];try{const r=await env.DB.prepare(
+  'UPDATE songs SET title=?,slug=?,artist=?,language=?,description=?,lyrics=?,english_translation=?,transliteration=?,youtube_url=?,spotify_url=?,search_terms=?,status=?,updated_at=? WHERE id=?'
+).bind(...v).run();if(!r.meta.changes)return json({error:'Song not found.'},404)}catch(error){return json({error:String(error).includes('UNIQUE')?'That URL slug is already used. Choose another slug.':'Could not update song.'},500)}return json({song:{id:params.id,title:v[0],slug:v[1],status:v[11]}})}
 export async function onRequestDelete({request,env,params}){const e=await requireAuth(request,env);if(e)return e;const r=await env.DB.prepare('DELETE FROM songs WHERE id=?').bind(params.id).run();if(!r.meta.changes)return json({error:'Song not found.'},404);return json({ok:true})}
