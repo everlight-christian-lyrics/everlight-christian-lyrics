@@ -1,2 +1,156 @@
-import {escapeHtml} from '../_lib/auth.js';
-export async function onRequestGet({params,env,request}){const row=await env.DB.prepare("SELECT title,slug,artist,language,description,lyrics,transliteration,youtube_url,spotify_url,updated_at FROM songs WHERE slug=? AND status='published'").bind(params.slug).first();if(!row)return new Response('Song not found', {status:404,headers:{'Content-Type':'text/plain; charset=utf-8','X-Robots-Tag':'noindex'}});const origin=new URL(request.url).origin,canonical=`${origin}/lyrics/${encodeURIComponent(row.slug)}/`,title=escapeHtml(row.title),artist=escapeHtml(row.artist||'Artist not listed'),lang=escapeHtml(row.language||'Telugu'),desc=escapeHtml(row.description||`${row.title} — ${row.language||'Christian'} song information and lyrics from Everlight Christian Lyrics.`),lyrics=escapeHtml(row.lyrics||''),trans=escapeHtml(row.transliteration||'');const lyricBlock=row.lyrics?`<section><h2>Lyrics</h2><div class="lyrics">${lyrics}</div></section>`:`<section><h2>Lyrics</h2><p>Full lyrics are not available on this page yet. Check the authorized listening links below.</p></section>`;const links=[row.youtube_url?`<a href="${escapeHtml(row.youtube_url)}" rel="noopener noreferrer">Official YouTube ↗</a>`:'',row.spotify_url?`<a href="${escapeHtml(row.spotify_url)}" rel="noopener noreferrer">Spotify ↗</a>`:''].filter(Boolean).join(' · ');const body=`<!doctype html><html lang="${row.language==='Telugu'?'te':'en'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="${desc}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="${canonical}"><meta property="og:type" content="article"><meta property="og:title" content="${title} lyrics — Everlight Christian Lyrics"><meta property="og:description" content="${desc}"><meta property="og:url" content="${canonical}"><title>${title} lyrics${row.artist?' — '+artist:''} | Everlight Christian Lyrics</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}body{margin:0;background:#f7f8f3;color:#19362a;font:17px/1.75 'DM Sans','Noto Sans Telugu',sans-serif}.wrap{max-width:850px;margin:auto;padding:24px}.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #dce6dd}.brand{font-weight:800;letter-spacing:.08em;color:#14583d;text-decoration:none}.card{background:white;border:1px solid #e0e8df;border-radius:20px;padding:clamp(22px,5vw,48px);margin:34px 0;box-shadow:0 12px 40px #163d2510}h1{font-size:clamp(2rem,6vw,3.3rem);line-height:1.15;letter-spacing:-.04em;margin:12px 0}.meta,.desc{color:#5c6e62}.lyrics{white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Noto Sans Telugu','DM Sans',sans-serif;font-size:1.08rem;line-height:2.05}.links a{color:#126344;font-weight:700;margin-right:12px}.back{color:#126344;text-decoration:none}.note{font-size:14px;color:#6c7b70;border-top:1px solid #e6ece5;padding-top:18px;margin-top:28px}footer{color:#6c7b70;font-size:14px;padding:0 0 30px}@media(max-width:560px){.wrap{padding:16px}.card{padding:22px;margin:22px 0}}</style></head><body><div class="wrap"><header class="nav"><a class="brand" href="/">EVERLIGHT <span>CHRISTIAN LYRICS</span></a><a class="back" href="/">Search songs ←</a></header><main class="card"><p class="meta">${lang} Christian song</p><h1>${title}</h1><p class="meta">${artist}</p>${row.description?`<p class="desc">${desc}</p>`:''}${lyricBlock}${trans?`<section><h2>Roman transliteration</h2><div class="lyrics">${trans}</div></section>`:''}${links?`<p class="links">${links}</p>`:''}<p class="note">Everlight Christian Lyrics aims to credit song creators and publish lyrics only when authorized. <a href="mailto:REPLACE_WITH_YOUR_EMAIL">Report a correction</a>.</p></main><footer>© ${new Date().getFullYear()} Everlight Christian Lyrics</footer></div><script type="application/ld+json">${JSON.stringify({'@context':'https://schema.org','@type':'MusicComposition','name':row.title,'inLanguage':row.language||'Telugu','lyricist':row.artist?{'@type':'Person','name':row.artist}:undefined,'url':canonical}).replace(/</g,'\\u003c')}</script></body></html>`;return new Response(body,{headers:{'Content-Type':'text/html; charset=utf-8','Cache-Control':'public, max-age=300','X-Content-Type-Options':'nosniff'}})}
+import { escapeHtml } from '../_lib/auth.js';
+
+export async function onRequestGet({ params, env, request }) {
+  const row = await env.DB.prepare(
+    "SELECT title, slug, artist, language, description, lyrics, english_translation, transliteration, youtube_url, spotify_url, updated_at FROM songs WHERE slug = ? AND status = 'published'"
+  )
+    .bind(params.slug)
+    .first();
+
+  if (!row) {
+    return new Response('Song not found', {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'X-Robots-Tag': 'noindex',
+      },
+    });
+  }
+
+  const origin = new URL(request.url).origin;
+  const canonical = `${origin}/lyrics/${encodeURIComponent(row.slug)}/`;
+  const title = escapeHtml(row.title);
+  const artist = escapeHtml(row.artist || 'Artist not listed');
+  const lang = escapeHtml(row.language || 'Telugu');
+  const desc = escapeHtml(
+    row.description ||
+      `${row.title} — ${row.language || 'Christian'} song information and lyrics from Everlight Christian Lyrics.`
+  );
+
+  const lyrics = escapeHtml(row.lyrics || '');
+  const english = escapeHtml(row.english_translation || '');
+  const trans = escapeHtml(row.transliteration || '');
+  const hasLyrics = Boolean(row.lyrics);
+  const hasEnglish = Boolean(row.english_translation?.trim());
+
+  const lyricBlock = hasLyrics
+    ? `<section>
+        <h2>Lyrics</h2>
+        ${
+          hasEnglish
+            ? `<div class="language-toggle" role="group" aria-label="Lyrics language">
+                <button type="button" class="lang-btn active" data-lang="te" aria-pressed="true">తెలుగు</button>
+                <button type="button" class="lang-btn" data-lang="en" aria-pressed="false">English</button>
+              </div>
+              <div class="lyrics" id="lyrics-te" lang="te">${lyrics}</div>
+              <div class="lyrics" id="lyrics-en" lang="en" hidden>${english}</div>`
+            : `<div class="lyrics" lang="${row.language === 'Telugu' ? 'te' : 'en'}">${lyrics}</div>`
+        }
+      </section>`
+    : `<section>
+        <h2>Lyrics</h2>
+        <p>Full lyrics are not available on this page yet. Check the authorized listening links below.</p>
+      </section>`;
+
+  const links = [
+    row.youtube_url
+      ? `<a href="${escapeHtml(row.youtube_url)}" rel="noopener noreferrer">Official YouTube ↗</a>`
+      : '',
+    row.spotify_url
+      ? `<a href="${escapeHtml(row.spotify_url)}" rel="noopener noreferrer">Spotify ↗</a>`
+      : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  const structuredData = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'MusicComposition',
+    name: row.title,
+    inLanguage: row.language || 'Telugu',
+    lyricist: row.artist
+      ? { '@type': 'Person', name: row.artist }
+      : undefined,
+    url: canonical,
+  }).replace(/</g, '\\u003c');
+
+  const body = `<!doctype html>
+<html lang="${row.language === 'Telugu' ? 'te' : 'en'}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="${desc}">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="${canonical}">
+<meta property="og:type" content="article">
+<meta property="og:title" content="${title} lyrics — Everlight Christian Lyrics">
+<meta property="og:description" content="${desc}">
+<meta property="og:url" content="${canonical}">
+<title>${title} lyrics${row.artist ? ' — ' + artist : ''} | Everlight Christian Lyrics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f8f3;color:#19362a;font:17px/1.75 'DM Sans','Noto Sans Telugu',sans-serif}
+.wrap{max-width:850px;margin:auto;padding:24px}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid #dce6dd;gap:12px}
+.brand{font-weight:800;letter-spacing:.08em;color:#14583d;text-decoration:none}
+.card{background:white;border:1px solid #e0e8df;border-radius:20px;padding:clamp(22px,5vw,48px);margin:34px 0;box-shadow:0 12px 40px #163d2510}
+h1{font-size:clamp(2rem,6vw,3.3rem);line-height:1.15;letter-spacing:-.04em;margin:12px 0}
+.meta,.desc{color:#5c6e62}
+.lyrics{white-space:pre-wrap;overflow-wrap:anywhere;font-family:'Noto Sans Telugu','DM Sans',sans-serif;font-size:1.08rem;line-height:2.05}
+.language-toggle{display:flex;gap:10px;margin:18px 0}
+.lang-btn{padding:9px 20px;border:1px solid #cbdacf;border-radius:24px;background:#fff;color:#14583d;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+.lang-btn.active{background:#14583d;color:#fff;border-color:#14583d}
+[hidden]{display:none!important}
+.links a{color:#126344;font-weight:700;margin-right:12px}
+.back{color:#126344;text-decoration:none}
+.note{font-size:14px;color:#6c7b70;border-top:1px solid #e6ece5;padding-top:18px;margin-top:28px}
+footer{color:#6c7b70;font-size:14px;padding:0 0 30px}
+@media(max-width:560px){.wrap{padding:16px}.card{padding:22px;margin:22px 0}.nav{align-items:flex-start;flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav">
+<a class="brand" href="/">EVERLIGHT <span>CHRISTIAN LYRICS</span></a>
+<a class="back" href="/">Search songs ←</a>
+</header>
+<main class="card">
+<p class="meta">${lang} Christian song</p>
+<h1>${title}</h1>
+<p class="meta">${artist}</p>
+${row.description ? `<p class="desc">${desc}</p>` : ''}
+${lyricBlock}
+${trans ? `<section><h2>Roman transliteration</h2><div class="lyrics">${trans}</div></section>` : ''}
+${links ? `<p class="links">${links}</p>` : ''}
+<p class="note">Everlight Christian Lyrics aims to credit song creators and publish lyrics only when authorized. <a href="mailto:REPLACE_WITH_YOUR_EMAIL">Report a correction</a>.</p>
+</main>
+<footer>© ${new Date().getFullYear()} Everlight Christian Lyrics</footer>
+</div>
+${hasEnglish && hasLyrics ? `<script>
+document.querySelectorAll('.lang-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const showEnglish = button.dataset.lang === 'en';
+    document.getElementById('lyrics-te').hidden = showEnglish;
+    document.getElementById('lyrics-en').hidden = !showEnglish;
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      const active = btn === button;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+  });
+});
+</script>` : ''}
+<script type="application/ld+json">${structuredData}</script>
+</body>
+</html>`;
+
+  return new Response(body, {
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'public, max-age=300',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
+}
