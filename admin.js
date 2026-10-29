@@ -9,7 +9,19 @@ async function loadSongs(){try{const d=await api('/api/songs?all=1');songs=d.son
 function resetForm(){form.reset();$('#song-id').value='';$('#editor-heading').textContent='Add a song';$('#publish').value='draft';editor.hidden=true}
 $('#new-song').onclick=()=>{resetForm();$('#editor-heading').textContent='Add a song';editor.hidden=false;editor.scrollIntoView({behavior:'smooth'})};$('#cancel-edit').onclick=resetForm;
 $('#title').addEventListener('input',()=>{if(!$('#song-id').value)$('#slug').value=$('#title').value.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')});
-function editSong(s){if(!s)return;$('#song-id').value=s.id;for(const k of ['title','artist','language','slug','description','lyrics','transliteration','youtubeUrl','spotifyUrl'])$('#'+k).value=s[k]||'';$('#searchTerms').value=(s.searchTerms||[]).join(', ');$('#publish').value=s.status;$('#rightsConfirmed').checked=true;$('#rightsConfirmed').required=false;$('#editor-heading').textContent='Edit song';editor.hidden=false;editor.scrollIntoView({behavior:'smooth'})}
-form.addEventListener('submit',async e=>{e.preventDefault();const id=$('#song-id').value;const body={title:$('#title').value.trim(),artist:$('#artist').value.trim(),language:$('#language').value,slug:$('#slug').value.trim(),description:$('#description').value.trim(),lyrics:$('#lyrics').value,transliteration:$('#transliteration').value,youtubeUrl:$('#youtubeUrl').value.trim(),spotifyUrl:$('#spotifyUrl').value.trim(),searchTerms:$('#searchTerms').value.split(',').map(x=>x.trim()).filter(Boolean),status:$('#publish').value,rightsConfirmed:$('#rightsConfirmed').checked};try{const d=await api(id?`/api/songs/${id}`:'/api/songs',{method:id?'PUT':'POST',body:JSON.stringify(body)});status(`Saved “${d.song.title}”. ${d.song.status==='published'?'Public page: '+location.origin+'/lyrics/'+d.song.slug+'/':'Saved as draft; it is not publicly visible.'}`);resetForm();await loadSongs()}catch(err){status(err.message)}});
+function editSong(s){
+  if(!s)return;
+  $('#song-id').value=s.id;
+  for(const k of ['title','artist','language','slug','description','lyrics','englishTranslation','transliteration','youtubeUrl','spotifyUrl']){
+    $('#'+k).value=s[k]||'';
+  }
+  $('#searchTerms').value=(s.searchTerms||[]).join(', ');
+  $('#publish').value=s.status;
+  $('#rightsConfirmed').checked=true;
+  $('#rightsConfirmed').required=false;
+  $('#editor-heading').textContent='Edit song';
+  editor.hidden=false;
+  editor.scrollIntoView({behavior:'smooth'});
+}form.addEventListener('submit',async e=>{e.preventDefault();const id=$('#song-id').value;const body={title:$('#title').value.trim(),artist:$('#artist').value.trim(),language:$('#language').value,slug:$('#slug').value.trim(),description:$('#description').value.trim(),lyrics:$('#lyrics').value,englishTranslation:$('#englishTranslation').value,transliteration:$('#transliteration').value,youtubeUrl:$('#youtubeUrl').value.trim(),spotifyUrl:$('#spotifyUrl').value.trim(),searchTerms:$('#searchTerms').value.split(',').map(x=>x.trim()).filter(Boolean),status:$('#publish').value,rightsConfirmed:$('#rightsConfirmed').checked};try{const d=await api(id?`/api/songs/${id}`:'/api/songs',{method:id?'PUT':'POST',body:JSON.stringify(body)});status(`Saved “${d.song.title}”. ${d.song.status==='published'?'Public page: '+location.origin+'/lyrics/'+d.song.slug+'/':'Saved as draft; it is not publicly visible.'}`);resetForm();await loadSongs()}catch(err){status(err.message)}});
 async function toggleSong(s){try{await api('/api/songs/'+s.id,{method:'PUT',body:JSON.stringify({...s,status:s.status==='published'?'draft':'published',rightsConfirmed:true})});status('Song status updated.');await loadSongs()}catch(e){status(e.message)}}async function deleteSong(s){if(!s||!confirm(`Permanently delete “${s.title}”?`))return;try{await api('/api/songs/'+s.id,{method:'DELETE'});status('Song deleted.');await loadSongs()}catch(e){status(e.message)}}
 check();
