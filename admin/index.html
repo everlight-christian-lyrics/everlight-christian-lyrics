@@ -389,6 +389,38 @@
           Only publish lyrics you wrote, control, have permission to
           publish, or otherwise have a valid legal basis to use.
         </p>
+        
+<div class="admin-panel">
+  <h2>Bulk Import Songs</h2>
+  <p class="muted">
+    Upload a CSV file to import multiple songs as drafts.
+  </p>
+
+  <div class="admin-field">
+    <label for="csv-file">Select CSV File</label>
+    <input
+      type="file"
+      id="csv-file"
+      accept=".csv,text/csv"
+    >
+  </div>
+
+  <div class="admin-field" style="margin-top:14px">
+    <label>
+      <input type="checkbox" id="csv-rights-confirmed">
+      I confirm that I have the rights, permission, or another
+      valid legal basis to import and store these lyrics.
+    </label>
+  </div>
+
+  <div class="admin-actions">
+    <button class="admin-btn" id="csv-import-btn" type="button">
+      Import CSV as Drafts
+    </button>
+  </div>
+
+  <div id="csv-import-status" class="admin-status" hidden></div>
+</div>
       </section>
     </section>
 
