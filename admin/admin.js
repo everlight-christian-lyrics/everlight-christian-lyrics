@@ -48,7 +48,6 @@ async function api(url, options = {}) {
 }
 
 async function check() {
-  // Always hide the admin dashboard until authentication is confirmed.
   showLoggedIn(false);
   status('Checking login session...');
 
@@ -125,6 +124,7 @@ async function loadSongs() {
             <strong>${esc(s.title)}</strong>
             <small>
               ${esc(s.artist || 'Artist not set')} ·
+              ${esc(s.category || 'General')} ·
               ${esc(s.status)} ·
               /lyrics/${esc(s.slug)}/
             </small>
@@ -159,9 +159,18 @@ async function loadSongs() {
 
 function resetForm() {
   form.reset();
+
   $('#song-id').value = '';
   $('#editor-heading').textContent = 'Add a song';
   $('#publish').value = 'draft';
+
+  // Default category for new songs
+  $('#category').value = 'General';
+
+  // Restore rights confirmation for new songs
+  $('#rightsConfirmed').checked = false;
+  $('#rightsConfirmed').required = true;
+
   editor.hidden = true;
 }
 
@@ -207,6 +216,9 @@ function editSong(s) {
     $('#' + k).value = s[k] || '';
   }
 
+  // Load saved category
+  $('#category').value = s.category || 'General';
+
   $('#searchTerms').value = (s.searchTerms || []).join(', ');
   $('#publish').value = s.status;
 
@@ -229,6 +241,7 @@ form.addEventListener('submit', async e => {
     title: $('#title').value.trim(),
     artist: $('#artist').value.trim(),
     language: $('#language').value,
+    category: $('#category').value,
     slug: $('#slug').value.trim(),
     description: $('#description').value.trim(),
     lyrics: $('#lyrics').value,
