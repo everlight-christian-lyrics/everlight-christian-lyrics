@@ -133,8 +133,18 @@ if (csvImportButton) {
         throw Error('Missing CSV columns: ' + missing.join(', '));
       }
 
-      let imported = 0;
-      const errors = [];
+     let imported = 0;
+let skipped = 0;
+const errors = [];
+
+// Fetch the latest songs from the database
+const existingData = await api('/api/songs?all=1');
+songs = existingData.songs || [];
+
+// Track existing slugs
+const existingSlugs = new Set(
+  songs.map(song => song.slug)
+);
 
       for (let i = 0; i < entries.length; i++) {
         const item = entries[i];
@@ -147,26 +157,31 @@ if (csvImportButton) {
         }
 
         const category = item.proposed_category.trim();
-
-        const allowedCategories = [
+            const allowedCategories = [
           'General',
           'Telugu Christmas Songs',
           'Telugu Worship Songs',
           'Telugu Praise Songs',
           'Telugu Easter Songs'
         ];
-
+        
         if (!allowedCategories.includes(category)) {
           errors.push(`Row ${i + 2}: Invalid category.`);
           continue;
         }
+        const slug = makeImportSlug(item);
 
+// Skip previously imported songs
+if (existingSlugs.has(slug)) {
+  skipped++;
+  continue;
+}
         const body = {
           title,
           artist: '',
           language: item.language.trim() || 'Telugu',
           category,
-          slug: makeImportSlug(item),
+   slug,
           description: '',
           lyrics: item.lyrics_telugu,
           englishTranslation: item.english_translation || '',
@@ -184,7 +199,8 @@ if (csvImportButton) {
             body: JSON.stringify(body)
           });
 
-          imported++;
+       imported++;
+existingSlugs.add(slug);
 
         } catch (err) {
           errors.push(`${title}: ${err.message}`);
@@ -196,14 +212,15 @@ if (csvImportButton) {
           `Errors: ${errors.length}`;
       }
 
-      csvImportStatus.textContent =
-        `IMPORT COMPLETE\n\n` +
-        `Total entries: ${entries.length}\n` +
-        `Successfully imported: ${imported}\n` +
-        `Failed entries: ${errors.length}\n\n` +
-        (errors.length
-          ? 'Errors:\n' + errors.join('\n')
-          : 'All songs saved successfully as drafts.');
+csvImportStatus.textContent =
+  `IMPORT COMPLETE\n\n` +
+  `Total entries: ${entries.length}\n` +
+  `Successfully imported: ${imported}\n` +
+  `Skipped duplicates: ${skipped}\n` +
+  `Failed entries: ${errors.length}\n\n` +
+  (errors.length
+    ? 'Errors:\n' + errors.join('\n')
+    : 'All songs processed successfully.');
 
       status('CSV import completed.');
 
