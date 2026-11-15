@@ -130,7 +130,7 @@ async function loadSongs() {
           <div>
             <strong>${esc(s.title)}</strong>
             <small>
-              ${esc(s.artist || 'Artist not set')} ·
+              ${esc(s.artist || 'Artist information unavailable')} ·
               ${esc(s.category || 'General')} ·
               ${esc(s.status)} ·
               /lyrics/${esc(s.slug)}/
